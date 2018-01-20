@@ -45,6 +45,8 @@
     };
     firebase.initializeApp(config);
     
+
+    //Create the map
     var map;
     function initMap(){
         map = new google.maps.Map(document.getElementById('map'), {
@@ -61,6 +63,10 @@
         disableDoubleClickZoom: false,
         streetViewControl: false,*/
       });
+      /*var marker = new google.maps.Marker({
+        position: {lat: 34.4116, lng: -119.8478},
+        map: map
+      })*/
     }
     </script>
 
