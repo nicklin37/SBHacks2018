@@ -4,11 +4,14 @@ var rp      = require('request-promise'),
 
 var json_data = {};
 
-var state_abbrs = ['al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'fl', 'ga', 'hi', 'id', 'il', 'in', 'ia', 'kn', 'ky', 'la', 'me', 'md', 'ma', 'mi', 'mn', 'ms', 'mo', 'mt', 'ne', 'nv', 'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'vt', 'va', 'wa', 'wv', 'wi', 'wy'];
+var state_abbrs = ['al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'fl', 'ga', 'hi', 'id', 'il', 'in', 'ia', 'kn', 'ky', 'la', 'me', 'md', 'ma', 
+'mi', 'mn', 'ms', 'mo', 'mt', 'ne', 'nv', 'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'vt', 
+'va', 'wa', 'wv', 'wi', 'wy'];
 var remaining = state_abbrs.length;
 
 // Hardcode headings :(
-var headings = ['Year', 'Population', 'Index', 'Violent', 'Property', 'Murder', 'Forcible Rape', 'Robbery', 'Aggravated Assault', 'Burglary', 'Larceny - Theft', 'Vehicle Theft'];
+var headings = ['Year', 'Population', 'Index', 'Violent', 'Property', 'Murder', 'Forcible Rape', 'Robbery', 'Aggravated Assault', 
+'Burglary', 'Larceny - Theft', 'Vehicle Theft'];
 
 state_abbrs.forEach(function (state) {
   rp(generate_url(state))
