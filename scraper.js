@@ -5,7 +5,7 @@ var rp      = require('request-promise'),
 var json_data = {};
 
 var state_abbrs = ['al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'fl', 'ga', 'hi', 'id', 'il', 'in', 'ia', 'kn', 'ky', 'la', 'me', 'md', 'ma', 
-'mi', 'mn', 'ms', 'mo', 'mt', 'ne', 'nv', 'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'vt', 
+'mi', 'mn', 'ms', 'mo', 'mt', 'n e', 'nv', 'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'vt', 
 'va', 'wa', 'wv', 'wi', 'wy'];
 var remaining = state_abbrs.length;
 
@@ -62,3 +62,4 @@ function generate_url(a) {
 function cap_first (str) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
