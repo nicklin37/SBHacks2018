@@ -109,10 +109,9 @@
 	        <a class="nav-link" href="about.html">About</a>
 	      </li>
 	    </ul>
-	    <form class="form-inline my-2 my-lg-0">
-	      <input class="form-control mr-sm-2" type="text" placeholder="Search">
-	      <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-	    </form>
+    <input id="pac-input" class="controls" type="text" placeholder="Search">
+    <div  id="map-canvas"></div>
+	    
 	  </div>
 	</nav>
 
@@ -205,10 +204,10 @@
         zoom: 11
       });
 
-      heatmap = new google.maps.visualization.HeatmapLayer({
+        /*heatmap = new google.maps.visualization.HeatmapLayer({
           data: getPoints(),
           map: map
-        });
+        });*/
       // Create the search box and link it to the UI element.
         var input = document.getElementById('pac-input');
         var searchBox = new google.maps.places.SearchBox(input);
@@ -256,9 +255,7 @@
 
     </script>
 
-    <script type="text/javascript"
-  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJQiW54HFJD_IHWKoz3F_bcUtMit_6jWk&callback=initMap&libraries=visualization,places">
-</script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJQiW54HFJD_IHWKoz3F_bcUtMit_6jWk&callback=initMap&libraries=visualization,places" async defer></script>
 
 
     
