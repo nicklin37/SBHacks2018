@@ -51,6 +51,7 @@
     <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-messaging.js"></script>
 
+
     <script>
       // Initialize Firebase
     var config = {
@@ -70,30 +71,73 @@
 
     var initpos = {lat: 34.4208, lng: -119.6982};
 
-    function initMap(){
-      var map = new google.maps.Map(document.getElementById('map'), {
-        center: initpos,
-        zoom: 10
-      });
+    var map, heatmap;
+    
+    var points = [];
+
+    function changeGradient() {
+        var gradient = [
+
+          'rgba(0, 255, 255, 0)',
+          'rgba(0, 255, 255, 1)',
+          'rgba(0, 191, 255, 1)',
+          'rgba(0, 127, 255, 1)',
+          'rgba(0, 63, 255, 1)',
+          'rgba(0, 0, 255, 1)',
+          'rgba(0, 0, 223, 1)',
+          'rgba(0, 0, 191, 1)',
+          'rgba(0, 0, 159, 1)',
+          'rgba(0, 0, 127, 1)',
+          'rgba(63, 0, 91, 1)',
+          'rgba(127, 0, 63, 1)',
+          'rgba(191, 0, 31, 1)',
+          'rgba(255, 0, 0, 1)'
+        ]
+        heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+      }
+
+    function changeRadius() {
+      heatmap.set('radius', heatmap.get('radius') ? null : 20);
+    }
+
+    function changeOpacity() {
+      heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
+    }
+
+    function getPoints(){
+
       database.ref('/places/').once('value', function(snapshot) {
-        snapshot.forEach(function(childSnapshot){
-          var childKey = childSnapshot.key;
-          var childData = childSnapshot.val();
-          var latitude = childData.lat;
-          var longitude = childData.lng;
-          var latLng = new google.maps.LatLng(latitude, longitude);
-          var marker = new google.maps.Marker({
-            position: latLng,
-            map: map
-          });
-          markers.push(marker);
-        });
+      snapshot.forEach(function(childSnapshot){
+        var childKey = childSnapshot.key;
+        var childData = childSnapshot.val();
+        var latitude = childData.lat;
+        var longitude = childData.lng;
+        var latLng = new google.maps.LatLng(latitude, longitude);
+        points.push(latLng);
       });
+      return points;
+      });
+    }
+
+    function initMap(){
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: initpos,
+        zoom: 11
+      });
+
+      heatmap = new google.maps.visualization.HeatmapLayer({
+          data: getPoints(),
+          map: map
+        });
     }
 
     </script>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAoPjb-BG-1W2TAwBiRTiT0wa5tbwZC_Dw&callback=initMap"
-    async defer></script>
+    <script type="text/javascript"
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJQiW54HFJD_IHWKoz3F_bcUtMit_6jWk&callback=initMap&libraries=visualization,places">
+</script>
+
+
+    
   </body>
 </html>
