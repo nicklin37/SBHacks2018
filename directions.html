@@ -109,6 +109,12 @@
 		      <li class="nav-item">
 		        <a class="nav-link" href="about.html">About</a>
 		      </li>
+          <li class="nav-item">
+            <a class="nav-link" href="directions.html">Safety Tips</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="heatmap.html">HeatMap</a>
+        </li>
 		    </ul>
       <input id="pac-input" class="controls" type="text" placeholder="Search">
       <div  id="map-canvas"></div>
@@ -117,15 +123,16 @@
 	</div>
 
 	<div class="sidenav">
-		<a href="#"> Direction </a>
-		<p> Replace with Directions. llum definitiones no quo, maluisset concludaturque et eum, altera fabulas ut quo. Atqui causae gloriatur ius te, id agam omnis evertitur eum. Affert laboramus repudiandae nec et. Inciderint efficiantur his ad. Eum no molestiae voluptatibus.
-		</p>
-		<a href="#"> Safety Tips </a>
-		<p> Replace with safety tips. llum definitiones no quo, maluisset concludaturque et eum, altera fabulas ut quo. Atqui causae gloriatur ius te, id agam omnis evertitur eum. Affert laboramus repudiandae nec et. Inciderint efficiantur his ad. Eum no molestiae voluptatibus.
-		</p>
-	</div>
+    <a href="#"> Street Safety Tips </a>
+    <p> Be aware of your surroundings at all times and trust your instincts.  If you think you are in an area you should not be, you probably are.
+    </p>
+    <p>Know where you're going and the safest way to get there, particularly when moving about the city during hours of darkness. Walk/run in well-traveled, well-lit areas avoiding short cuts through alleys and parking lots.</p>
+    <p>Have a plan of action in mind.  Decide where you would go and what you would do should some dangerous situation occur.  Know where the nearest police/fire station is located, how to contact the police in the event of an emergency, what establishments are open late where you could seek refuge if needed, etc.</p>
+    <p>Walk with confidence on the street and at a good, steady pace.  Keep your head up, observe your surroundings, and don't look down at the ground.</p>
+  </div>
 
   <div id="map"></div>
+  
 
     <!-- Optional JavaScript -->
     <!-- jQuery first, then Popper.js, then Bootstrap JS -->
@@ -134,6 +141,14 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
 
     <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase.js"></script>
+    <script src="https://cdn.firebase.com/js/client/2.3.2/firebase.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase-messaging.js"></script>
+
+
     <script>
 
       // Initialize Firebase
@@ -145,17 +160,18 @@
       storageBucket: "model-sphere-192718.appspot.com",
       messagingSenderId: "65365836377"
     };
+
     firebase.initializeApp(config);
-    
+
     var database = firebase.database();
+
+    var initpos = {lat: 39.8283, lng: -98.5795};
 
     var markers = [];
 
-    var initpos = {lat: 34.4208, lng: -119.6982};
+    var map;
 
-    var map, heatmap;
-
-    function changeGradient() {
+    /*function changeGradient() {
         var gradient = [
 
           'rgba(0, 255, 255, 0)',
@@ -185,7 +201,7 @@
     }
 
     function getPoints(){
-
+      var points = [];
       database.ref('/places/').once('value', function(snapshot) {
       snapshot.forEach(function(childSnapshot){
         var childKey = childSnapshot.key;
@@ -199,62 +215,104 @@
       });
     }
 
+    function calculateAndDisplayRoute(directionsService, directionsDisplay) {
+        directionsService.route({
+          origin: document.getElementById('start').value,
+          destination: document.getElementById('end').value,
+          travelMode: 'DRIVING'
+        }, function(response, status) {
+          if (status === 'OK') {
+            directionsDisplay.setDirections(response);
+          } else {
+            window.alert('Directions request failed due to ' + status);
+          }
+        });
+    }*/
+
+
     function initMap(){
+      //var directionsService = new google.maps.DirectionsService;
+      //var directionsDisplay = new google.maps.DirectionsRenderer;
       map = new google.maps.Map(document.getElementById('map'), {
         center: initpos,
-        zoom: 11
+        zoom: 4
+      });
+      //directionsDisplay.setMap(map);
+
+      database.ref().once('value', function(snapshot) {
+      snapshot.forEach(function(childSnapshot){
+        var childKey = childSnapshot.key;
+        var childData = childSnapshot.val();
+        var latitude = childData.lat;
+        var longitude = childData.long;
+        var latLng = new google.maps.LatLng(latitude, longitude);
+        var marker = new google.maps.Marker({
+          position: latLng,
+          map: map
+        });
+        markers.push(marker);
+      });
       });
 
-        /*heatmap = new google.maps.visualization.HeatmapLayer({
-          data: getPoints(),
-          map: map
-        });*/
+      //marker.setMap(map);
+
+      /*var onChangeHandler = function() {
+          calculateAndDisplayRoute(directionsService, directionsDisplay);
+        };
+        document.getElementById('start').addEventListener('change', onChangeHandler);
+        document.getElementById('end').addEventListener('change', onChangeHandler);
+      }*/
+      /*heatmap = new google.maps.visualization.HeatmapLayer({
+        data: getPoints(),
+        map: map
+      });*/
+
+
+      //heatmap.setMap(map);
       // Create the search box and link it to the UI element.
-        var input = document.getElementById('pac-input');
-        var searchBox = new google.maps.places.SearchBox(input);
+      var input = document.getElementById('pac-input');
+      var searchBox = new google.maps.places.SearchBox(input);
 
-        // Bias the SearchBox results towards current map's viewport.
-        map.addListener('bounds_changed', function() {
-          searchBox.setBounds(map.getBounds());
-        });
+      // Bias the SearchBox results towards current map's viewport.
+      map.addListener('bounds_changed', function() {
+        searchBox.setBounds(map.getBounds());
+      });
 
-        // Listen for the event fired when the user selects a prediction and retrieve
-        // more details for that place.
-        searchBox.addListener('places_changed', function() {
-          var places = searchBox.getPlaces();
+      // Listen for the event fired when the user selects a prediction and retrieve
+      // more details for that place.
+      searchBox.addListener('places_changed', function() {
+        var places = searchBox.getPlaces();
 
-          if (places.length == 0) {
+        if (places.length == 0) {
+          return;
+        }
+
+          
+        // For each place, get the icon, name and location.
+        var bounds = new google.maps.LatLngBounds();
+        places.forEach(function(place) {
+          if (!place.geometry) {
+            console.log("Returned place contains no geometry");
             return;
           }
 
-          
-          // For each place, get the icon, name and location.
-          var bounds = new google.maps.LatLngBounds();
-          places.forEach(function(place) {
-            if (!place.geometry) {
-              console.log("Returned place contains no geometry");
-              return;
-            }
+          // Create a marker for each place.
+          markers.push(new google.maps.Marker({
+            map: map,
+            title: place.name,
+            position: place.geometry.location
+           }));
 
-            // Create a marker for each place.
-            markers.push(new google.maps.Marker({
-              map: map,
-              title: place.name,
-              position: place.geometry.location
-            }));
-
-            if (place.geometry.viewport) {
-              // Only geocodes have viewport.
-              bounds.union(place.geometry.viewport);
-            } else {
-              bounds.extend(place.geometry.location);
-            }
-          });
-          map.fitBounds(bounds);
+          if (place.geometry.viewport) {
+            // Only geocodes have viewport.
+            bounds.union(place.geometry.viewport);
+          } else {
+            bounds.extend(place.geometry.location);
+          }
         });
+        map.fitBounds(bounds);
+      });
     }
-
-
     </script>
 
     <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJQiW54HFJD_IHWKoz3F_bcUtMit_6jWk&callback=initMap&libraries=visualization,places" async defer></script>
