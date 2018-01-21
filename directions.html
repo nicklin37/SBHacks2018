@@ -27,8 +27,10 @@
 		        <a class="nav-link" href="about.html">About</a>
 		      </li>
 		    </ul>
-		        <input id="pac-input" class="controls" type="text" placeholder="Search">
-    <div  id="map-canvas"></div>
+		    <form class="form-inline my-2 my-lg-0">
+		      <input class="form-control mr-sm-2" type="text" placeholder="Search">
+		      <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
+		    </form>
 		  </div>
 		</nav>
 	</div>
@@ -67,51 +69,8 @@
         map = new google.maps.Map(document.getElementById('map'), {
         center: {lat: 34.4208,lng: -119.6982}, //Set latitude and longitude to Santa Barbara, CA
         zoom: 12,
+
       });
-
-              // Create the search box and link it to the UI element.
-        var input = document.getElementById('pac-input');
-        var searchBox = new google.maps.places.SearchBox(input);
-
-        // Bias the SearchBox results towards current map's viewport.
-        map.addListener('bounds_changed', function() {
-          searchBox.setBounds(map.getBounds());
-        });
-
-        // Listen for the event fired when the user selects a prediction and retrieve
-        // more details for that place.
-        searchBox.addListener('places_changed', function() {
-          var places = searchBox.getPlaces();
-
-          if (places.length == 0) {
-            return;
-          }
-
-          
-          // For each place, get the icon, name and location.
-          var bounds = new google.maps.LatLngBounds();
-          places.forEach(function(place) {
-            if (!place.geometry) {
-              console.log("Returned place contains no geometry");
-              return;
-            }
-
-            // Create a marker for each place.
-            markers.push(new google.maps.Marker({
-              map: map,
-              title: place.name,
-              position: place.geometry.location
-            }));
-
-            if (place.geometry.viewport) {
-              // Only geocodes have viewport.
-              bounds.union(place.geometry.viewport);
-            } else {
-              bounds.extend(place.geometry.location);
-            }
-          });
-          map.fitBounds(bounds);
-        });
     }
     </script>
 
