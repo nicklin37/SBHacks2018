@@ -64,44 +64,32 @@
 
     firebase.initializeApp(config);
 
-    let database = firebase.database();
+    var database = firebase.database();
 
     var markers = [];
 
-    var latLng = {lat: 34.4208, lng: -119.6982};
+    var initpos = {lat: 34.4208, lng: -119.6982};
 
     function initMap(){
       var map = new google.maps.Map(document.getElementById('map'), {
-        center: latLng,
+        center: initpos,
         zoom: 10
       });
       database.ref('/places/').once('value', function(snapshot) {
         snapshot.forEach(function(childSnapshot){
-          let childKey = childSnapshot.key;
+          var childKey = childSnapshot.key;
           var childData = childSnapshot.val();
           var latitude = childData.lat;
           var longitude = childData.lng;
+          var latLng = new google.maps.LatLng(latitude, longitude);
           var marker = new google.maps.Marker({
-            position: {lat: latitude, lng: longitude},
-            map: maps
+            position: latLng,
+            map: map
           });
-          markers.setMap(marker);
+          markers.push(marker);
         });
       });
-      /*var marker = new google.maps.Marker({
-        position: {lat: 34.4208, lng: -119.6982},
-      });
-
-      marker.setMap(map);*/
     }
-
-
-    
-
-    
-    
-  
-
 
     </script>
 
