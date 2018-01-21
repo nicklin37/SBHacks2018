@@ -9,11 +9,94 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <link rel="stylesheet" href="main.css">
     <title>Directions</title>
+       <style>
+      /* Always set the map height explicitly to define the size of the div
+       * element that contains the map. */
+      #map {
+        height: 100%;
+      }
+      /* Optional: Makes the sample page fill the window. */
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #description {
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+      }
+
+      #infowindow-content .title {
+        font-weight: bold;
+      }
+
+      #infowindow-content {
+        display: none;
+      }
+
+      #map #infowindow-content {
+        display: inline;
+      }
+
+      .pac-card {
+        margin: 10px 10px 0 0;
+        border-radius: 2px 0 0 2px;
+        box-sizing: border-box;
+        -moz-box-sizing: border-box;
+        outline: none;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+        background-color: #fff;
+        font-family: Roboto;
+      }
+
+      #pac-container {
+        padding-bottom: 12px;
+        margin-right: 12px;
+      }
+
+      .pac-controls {
+        display: inline-block;
+        padding: 5px 11px;
+      }
+
+      .pac-controls label {
+        font-family: Roboto;
+        font-size: 13px;
+        font-weight: 300;
+      }
+
+      #pac-input {
+        background-color: #fff;
+        font-family: Roboto;
+        font-size: 15px;
+        font-weight: 300;
+        margin-left: 30%;
+        text-overflow: ellipsis;
+        width: 400px;
+      }
+
+      #pac-input:focus {
+        border-color: #4d90fe;
+      }
+
+      #title {
+        color: #fff;
+        background-color: #4d90fe;
+        font-size: 25px;
+        font-weight: 500;
+        padding: 6px 12px;
+      }
+      #target {
+        width: 345px;
+      }
+    </style>
   </head>
   <body>
+
   	<div class="directions-navbar-container"> 
 	  	<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-		  <a class="navbar-brand" href="#">Crime Rates Map</a>
+		  <a class="navbar-brand" href="index.html">Crime Rates Map</a>
 		  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarColor01" aria-controls="navbarColor01" aria-expanded="false" aria-label="Toggle navigation">
 		    <span class="navbar-toggler-icon"></span>
 		  </button>
@@ -21,19 +104,18 @@
 		  <div class="collapse navbar-collapse" id="navbarColor01">
 		    <ul class="navbar-nav mr-auto">
 		      <li class="nav-item active">
-		        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+		        <a class="nav-link" href="index.html">Home <span class="sr-only">(current)</span></a>
 		      </li>
 		      <li class="nav-item">
-		        <a class="nav-link" href="#">About</a>
+		        <a class="nav-link" href="about.html">About</a>
 		      </li>
 		    </ul>
-		    <form class="form-inline my-2 my-lg-0">
-		      <input class="form-control mr-sm-2" type="text" placeholder="Search">
-		      <button class="btn btn-secondary my-2 my-sm-0" type="submit">Search</button>
-		    </form>
+      <input id="pac-input" class="controls" type="text" placeholder="Search">
+      <div  id="map-canvas"></div>
 		  </div>
 		</nav>
 	</div>
+
 	<div class="sidenav">
 		<a href="#"> Direction </a>
 		<p> Replace with Directions. llum definitiones no quo, maluisset concludaturque et eum, altera fabulas ut quo. Atqui causae gloriatur ius te, id agam omnis evertitur eum. Affert laboramus repudiandae nec et. Inciderint efficiantur his ad. Eum no molestiae voluptatibus.
@@ -53,6 +135,7 @@
 
     <script src="https://www.gstatic.com/firebasejs/4.9.0/firebase.js"></script>
     <script>
+
       // Initialize Firebase
     var config = {
       apiKey: "AIzaSyAoPjb-BG-1W2TAwBiRTiT0wa5tbwZC_Dw",
@@ -64,32 +147,118 @@
     };
     firebase.initializeApp(config);
     
-    var map;
-    function initMap(){
-        map = new google.maps.Map(document.getElementById('map'), {
-        center: {lat: 34.4208,lng: -119.6982}, //Set latitude and longitude to Santa Barbara, CA
-        zoom: 12,
-        /*styles: [{
-          featureType: 'poi',
-          stylers: [{ visibility: off}]
-        },
-        {
-          featureType: 'transit.station',
-          stylers: [{ visibility: off}]
-        }],
-        disableDoubleClickZoom: false,
-        streetViewControl: false,*/
+    var database = firebase.database();
+
+    var markers = [];
+
+    var initpos = {lat: 34.4208, lng: -119.6982};
+
+    var map, heatmap;
+
+    function changeGradient() {
+        var gradient = [
+
+          'rgba(0, 255, 255, 0)',
+          'rgba(0, 255, 255, 1)',
+          'rgba(0, 191, 255, 1)',
+          'rgba(0, 127, 255, 1)',
+          'rgba(0, 63, 255, 1)',
+          'rgba(0, 0, 255, 1)',
+          'rgba(0, 0, 223, 1)',
+          'rgba(0, 0, 191, 1)',
+          'rgba(0, 0, 159, 1)',
+          'rgba(0, 0, 127, 1)',
+          'rgba(63, 0, 91, 1)',
+          'rgba(127, 0, 63, 1)',
+          'rgba(191, 0, 31, 1)',
+          'rgba(255, 0, 0, 1)'
+        ]
+        heatmap.set('gradient', heatmap.get('gradient') ? null : gradient);
+      }
+
+    function changeRadius() {
+      heatmap.set('radius', heatmap.get('radius') ? null : 20);
+    }
+
+    function changeOpacity() {
+      heatmap.set('opacity', heatmap.get('opacity') ? null : 0.2);
+    }
+
+    function getPoints(){
+
+      database.ref('/places/').once('value', function(snapshot) {
+      snapshot.forEach(function(childSnapshot){
+        var childKey = childSnapshot.key;
+        var childData = childSnapshot.val();
+        var latitude = childData.lat;
+        var longitude = childData.lng;
+        var latLng = new google.maps.LatLng(latitude, longitude);
+        points.push(latLng);
+      });
+      return points;
       });
     }
+
+    function initMap(){
+      map = new google.maps.Map(document.getElementById('map'), {
+        center: initpos,
+        zoom: 11
+      });
+
+        /*heatmap = new google.maps.visualization.HeatmapLayer({
+          data: getPoints(),
+          map: map
+        });*/
+      // Create the search box and link it to the UI element.
+        var input = document.getElementById('pac-input');
+        var searchBox = new google.maps.places.SearchBox(input);
+
+        // Bias the SearchBox results towards current map's viewport.
+        map.addListener('bounds_changed', function() {
+          searchBox.setBounds(map.getBounds());
+        });
+
+        // Listen for the event fired when the user selects a prediction and retrieve
+        // more details for that place.
+        searchBox.addListener('places_changed', function() {
+          var places = searchBox.getPlaces();
+
+          if (places.length == 0) {
+            return;
+          }
+
+          
+          // For each place, get the icon, name and location.
+          var bounds = new google.maps.LatLngBounds();
+          places.forEach(function(place) {
+            if (!place.geometry) {
+              console.log("Returned place contains no geometry");
+              return;
+            }
+
+            // Create a marker for each place.
+            markers.push(new google.maps.Marker({
+              map: map,
+              title: place.name,
+              position: place.geometry.location
+            }));
+
+            if (place.geometry.viewport) {
+              // Only geocodes have viewport.
+              bounds.union(place.geometry.viewport);
+            } else {
+              bounds.extend(place.geometry.location);
+            }
+          });
+          map.fitBounds(bounds);
+        });
+    }
+
+
     </script>
 
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAoPjb-BG-1W2TAwBiRTiT0wa5tbwZC_Dw&callback=initMap"
-    async defer></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCJQiW54HFJD_IHWKoz3F_bcUtMit_6jWk&callback=initMap&libraries=visualization,places" async defer></script>
 
-    <!-- Optional JavaScript -->
-    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
   </body>
 </html>
