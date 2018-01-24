@@ -8,7 +8,6 @@ var state_abbrs = ['al', 'ak', 'az', 'ar', 'ca', 'co', 'ct', 'de', 'fl', 'ga', '
 'mi', 'mn', 'ms', 'mo', 'mt', 'n e', 'nv', 'nh', 'nj', 'nm', 'ny', 'nc', 'nd', 'oh', 'ok', 'or', 'pa', 'ri', 'sc', 'sd', 'tn', 'tx', 'ut', 'vt', 
 'va', 'wa', 'wv', 'wi', 'wy'];
 var remaining = state_abbrs.length;
-
 // Hardcode headings :(
 var headings = ['Year', 'Population', 'Index', 'Violent', 'Property', 'Murder', 'Forcible Rape', 'Robbery', 'Aggravated Assault', 
 'Burglary', 'Larceny - Theft', 'Vehicle Theft'];
